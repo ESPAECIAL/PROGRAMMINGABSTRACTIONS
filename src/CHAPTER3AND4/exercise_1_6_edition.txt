@@ -1,0 +1,10 @@
+New_York 40.7128 -74.0060
+Los_Angeles 34.0522 -118.2437
+Chicago 41.8781 -87.6298
+Houston 29.7604 -95.3698
+Phoenix 33.4484 -112.0740
+Philadelphia 39.9526 -75.1652
+San_Antonio 29.4241 -98.4936
+San_Diego 32.7157 -117.1611
+Dallas 32.7767 -96.7970
+San_Jose 37.3382 -121.8863
