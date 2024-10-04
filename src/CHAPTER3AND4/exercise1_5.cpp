@@ -17,10 +17,9 @@ string returnsSingularCoords(string &line, string dimension = "longitude") {
         }
         return "";
     }
-    int latestIndex = 0;
     for (int i = 0; i < lineLength; i++) {
         character = line.at(i);
-        if (character == ' ') return line.substr(latestIndex, i - latestIndex);
+        if (character == ' ') return line.substr(0, i);
     }
     return "";
 }
@@ -48,7 +47,7 @@ void printsFormattedCoords(string longitude, string latitude) {
 void showsTextAs2DCoords() {
     ifstream input;
     string line, subLine, longitude, latitude, pathFile;
-    pathFile = promptUserForFilename("Give the path of a .txt file: ", "Give a valid path: ");
+    pathFile = promptUserForFilename("Give the path of a .txt file: ", "Give a valid path for the .txt file: ");
     input.open(pathFile);
     cout << "  longitude |    latitude" << endl;
     cout << "  -----------------------" << endl;
