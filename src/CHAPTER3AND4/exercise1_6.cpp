@@ -16,6 +16,7 @@ void cliForGISOperations();
 void generalProcedureSelector();
 void generalProcedure();
 void preViewer();
+void printsLine(string line, int lineLength);
 void stepSelector();
 void printsGeneralProcedures();
 bool validsGeneralProcedureInput(string generalProcedure);
@@ -76,34 +77,71 @@ void generalProcedure() {
 }
 
 void preViewer () {
-    string line;
-    int lineCounter = 0;
-    int optionCounter = 0;
-    int lines = linesOfFile();
     char character;
-    string subLine;
-    int lineLength = line.length();
+    string line, subLine;
+    int lineCounter, lineLength, optionCounter, lines;
+
+    lineCounter = 0;
+    optionCounter = 0;
+    lines = linesOfFile();
+
     switch (currentGeneralProcedure) {
     case 1:
         while (true) {
+            int latestIndex, index;
+            index = 0;
+            latestIndex = 0;
             getline(CURRENTFILE, line);
+            lineLength = line.length();
             if (CURRENTFILE.eof() || CURRENTFILE.fail()) break;
             if (lines - lineCounter > ACTIONS.size()) {
-                for (int i = 0; i < lineLength; i++) {
-                    character = line.at(i);
-                    if (character == ' ') cout << line.substr(0, i);
+                while(true) {
+                    character = line.at(index);
+                    if (character == ' ' || index >= lineLength - 1) {
+                        cout << line.substr(latestIndex, index - latestIndex) << ", ";
+                        latestIndex = index + 1;
+                        index += 2;
+                    }
+                    if (index >= lineLength - 1) break;
+                    index++;
                 }
+                cout << endl;
+                lineCounter = lineCounter + 1;
             } else {
-                for (int i = 0; i < lineLength; i++) {
-                    character = line.at(i);
-                    if (character == ' ' || i == line.length() - 1) cout << line.substr(0, i);
+                latestIndex = 0;
+                while(true) {
+                    character = line.at(index);
+                    if (character == ' ' || index >= lineLength - 1) {
+                        cout << line.substr(latestIndex, index - latestIndex) << ", ";
+                        latestIndex = index + 1;
+                        index += 2;
+                    }
+                    if (index >= lineLength - 1) break;
+                    index++;
                 }
                 cout << ACTIONS.get(optionCounter) << endl;
                 optionCounter++;
+                lineCounter = lineCounter + 1;
             }
-            lineCounter++;
         }
     default: break;
+    }
+}
+
+void printsLine(string line, int lineLength) {
+    char character;
+    int latestIndex, index;
+    index = 0;
+    latestIndex = 0;
+    while(true) {
+        character = line.at(index);
+        if (character == ' ' || index >= lineLength - 1) {
+            cout << line.substr(latestIndex, index - latestIndex) << ", ";
+            latestIndex = index + 1;
+            index += 2;
+        }
+        if (index >= lineLength - 1) break;
+        index++;
     }
 }
 
