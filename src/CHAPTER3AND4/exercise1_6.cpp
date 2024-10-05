@@ -6,42 +6,49 @@
 #include "exercise1_6.h"
 using namespace std;
 
-ifstream CURRENTFILE;
+ofstream CURRENTFILE;
+ifstream CURRENTFILEVIEWER;
 string CURRENTFILEPATH;
-int programStep, currentGeneralProcedure;
+int PROGRAMSTEP, CURRENTGENERALPROCEDURE, SELECTEDTOOL;
 HashMap<int, string> ACTIONS = {{0, "(1) Add a new line"}, {1, "(2) Count locations"}, {2, "(3) Reverse coordinates"}};
 HashMap<int, string> generalProcedures = {{0, "(1) Creates File"}, {1, "(2) Edits File"}};
 
 void cliForGISOperations();
 void generalProcedureSelector();
 void generalProcedure();
-void preViewer();
+void preViewer(bool withTools = false);
+void selectTool();
 void printsLine(string line, int lineLength);
+void addNewLine();
 void stepSelector();
 void printsGeneralProcedures();
-bool validsGeneralProcedureInput(string generalProcedure);
 string returnsSingularVariable(string line, string variable = "latitude");
 void createsFile();
 bool parseAndValidInput(string &input, int &output, int minValue, int maxValue);
+bool parseAndValidNumericalValue(string &input, int &output);
 void openExistingFile(bool comesFromCreation = false);
 int linesOfFile();
 
 void cliForGISOperations() {
-    programStep = 0;
+    PROGRAMSTEP = 0;
     while(true) {
-        if (programStep == -1) {
+        if (PROGRAMSTEP == -1) {
             cout << "Finished" << endl;
             break;
         }
-        switch (programStep) {
+        switch (PROGRAMSTEP) {
         case 0:
             generalProcedureSelector();
         case 1:
             generalProcedure();
+        case 2:
+            preViewer();
+        case 3:
+            selectTool();
+
         default:
             break;
         }
-        preViewer();
         stepSelector();
     }
 }
@@ -54,95 +61,125 @@ void generalProcedureSelector() {
     while (true) {
         getline(cin, generalProcedure);
         if (parseAndValidInput(generalProcedure, intGeneralProcedure, 1, generalProcedures.size())) {
-            currentGeneralProcedure = intGeneralProcedure - 1;
+            CURRENTGENERALPROCEDURE = intGeneralProcedure - 1;
             break;
         }
         cout << "Such option is invalid, the valid options are: " << endl;
         printsGeneralProcedures();
     }
-    programStep = 1;
+    PROGRAMSTEP = 1;
 }
 
 void generalProcedure() {
-    switch(currentGeneralProcedure){
+    switch(CURRENTGENERALPROCEDURE){
     case 0:
         createsFile();
         openExistingFile(true);
+        PROGRAMSTEP = 2;
         break;
     case 1:
         openExistingFile();
+        PROGRAMSTEP = 2;
         break;
     default: break;
     }
 }
 
-void preViewer () {
-    char character;
+void preViewer (bool withTools) {
+
     string line, subLine;
-    int lineCounter, lineLength, optionCounter, lines;
+    int lineCounter = 0, optionCounter = 0, lines = linesOfFile();
 
-    lineCounter = 0;
-    optionCounter = 0;
-    lines = linesOfFile();
-
-    switch (currentGeneralProcedure) {
+    switch (CURRENTGENERALPROCEDURE) {
     case 1:
         while (true) {
-            int latestIndex, index;
-            index = 0;
-            latestIndex = 0;
-            getline(CURRENTFILE, line);
-            lineLength = line.length();
-            if (CURRENTFILE.eof() || CURRENTFILE.fail()) break;
+            getline(CURRENTFILEVIEWER, line);
+            int lineLength = line.length();
+            if (CURRENTFILEVIEWER.eof() || CURRENTFILEVIEWER.fail()) break;
             if (lines - lineCounter > ACTIONS.size()) {
-                while(true) {
-                    character = line.at(index);
-                    if (character == ' ' || index >= lineLength - 1) {
-                        cout << line.substr(latestIndex, index - latestIndex) << ", ";
-                        latestIndex = index + 1;
-                        index += 2;
-                    }
-                    if (index >= lineLength - 1) break;
-                    index++;
-                }
+                printsLine(line, lineLength);
                 cout << endl;
                 lineCounter = lineCounter + 1;
             } else {
-                latestIndex = 0;
-                while(true) {
-                    character = line.at(index);
-                    if (character == ' ' || index >= lineLength - 1) {
-                        cout << line.substr(latestIndex, index - latestIndex) << ", ";
-                        latestIndex = index + 1;
-                        index += 2;
-                    }
-                    if (index >= lineLength - 1) break;
-                    index++;
-                }
-                cout << ACTIONS.get(optionCounter) << endl;
+                printsLine(line, lineLength);
+                if (!withTools) cout << setw(20) << ACTIONS.get(optionCounter) << endl;
                 optionCounter++;
                 lineCounter = lineCounter + 1;
             }
         }
+        break;
+    case 0:
+        cout << "EMPTY FILE" << endl;
+        break;
+    default: break;
+    }
+}
+
+void selectTool () {
+    string selectedTool;
+    int intSelectedTool;
+
+    cout << "What you want to do?: ";
+    getline(cin, selectedTool);
+    while (true) {
+        if (parseAndValidInput(selectedTool, intSelectedTool, 0, 2)) {
+            SELECTEDTOOL = intSelectedTool - 1;
+            break;
+        }
+        cout << "Input a valid option: ";
+        getline(cin, selectedTool);
+    }
+}
+
+void tooler() {
+    switch (SELECTEDTOOL) {
+    case 0:
+        CURRENTFILEVIEWER.close();
+        addNewLine();
+        CURRENTFILE.close();
+        CURRENTFILE.open(CURRENTFILEPATH);
+        CURRENTFILEVIEWER.open(CURRENTFILEPATH);
+        preViewer(true);
     default: break;
     }
 }
 
 void printsLine(string line, int lineLength) {
     char character;
+    string separator;
     int latestIndex, index;
     index = 0;
     latestIndex = 0;
+
     while(true) {
         character = line.at(index);
         if (character == ' ' || index >= lineLength - 1) {
-            cout << line.substr(latestIndex, index - latestIndex) << ", ";
+            cout << setw(15) << left << line.substr(latestIndex, index - latestIndex);
             latestIndex = index + 1;
             index += 2;
         }
         if (index >= lineLength - 1) break;
         index++;
     }
+}
+
+void addNewLine() {
+    string place, longitude, latitude, newLine;
+    int intLongitude, intLatitude;
+    cout << "What's the place's name? ";
+    getline(cin, place);
+    while (true) {
+        cout << "What's the longitude's? ";
+        getline(cin, longitude);
+        if(parseAndValidNumericalValue(longitude, intLongitude)) break;
+    }
+    while (true) {
+        cout << "What's the latitude's? ";
+        getline(cin, latitude);
+        if(parseAndValidNumericalValue(latitude, intLatitude)) break;
+    }
+    newLine = place + " " + longitude + " " + latitude + "\n";
+    for (char character : newLine) CURRENTFILE.put(character);
 }
 
 void stepSelector() {
@@ -153,7 +190,7 @@ void stepSelector() {
         cout << "Press (1) and enter to select again the general procedure or (0) to finish the program: ";
         getline(cin, selectedStep);
         if (parseAndValidInput(selectedStep, intSelectedStep, 0, 1)) {
-            programStep = intSelectedStep - 1;
+            PROGRAMSTEP = intSelectedStep - 1;
             break;
         }
     }
@@ -163,17 +200,6 @@ void printsGeneralProcedures () {
     for (int i = 0; i < generalProcedures.size(); i++) {
         cout << generalProcedures.get(i) << endl;
     }
-}
-
-bool validsGeneralProcedureInput(string generalProcedure) {
-    istringstream stream(generalProcedure);
-    int intGeneralProcedure;
-    stream >> skipws >> intGeneralProcedure;
-    if (!stream.fail() && (stream.eof() || isspace(stream.peek())) && generalProcedures.containsKey(intGeneralProcedure - 1)) {
-        currentGeneralProcedure = intGeneralProcedure;
-        return true;
-    }
-    return false;
 }
 
 string returnsSingularVariable(string line, string variable) {
@@ -217,6 +243,12 @@ bool parseAndValidInput(string &input, int &output, int minValue, int maxValue) 
     return (!stream.fail() && (stream.eof() || isspace(stream.peek())) && (output >= minValue && output <= maxValue));
 }
 
+bool parseAndValidNumericalValue(string &input, int &output) {
+    istringstream stream(input);
+    stream >> skipws >> output;
+    return !stream.fail() && (stream.eof() || isspace(stream.peek()));
+}
+
 void createsFile() {
     string pathFolder, fileName, pathFile;
     while (true) {
@@ -241,7 +273,11 @@ void createsFile() {
 
 void openExistingFile(bool comesFromCreation) {
     if (!comesFromCreation) CURRENTFILEPATH = promptUserForFilename("Give the .txt file's path:", "Give a valid .txt file's path");
+    cout << "CURRENT FILE PATH: " << CURRENTFILEPATH << endl;
+    if (CURRENTFILE.is_open()) CURRENTFILE.close();
+    if (CURRENTFILEVIEWER.is_open()) CURRENTFILEVIEWER.close();
     CURRENTFILE.open(CURRENTFILEPATH);
+    CURRENTFILEVIEWER.open(CURRENTFILEPATH);
 }
 
 int linesOfFile () {
