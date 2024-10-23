@@ -18,6 +18,7 @@ void generalProcedureSelector();
 void generalProcedure();
 void preViewer(bool withTools = false);
 void selectTool();
+void tooler();
 void printsLine(string line, int lineLength);
 void addNewLine();
 void stepSelector();
@@ -25,7 +26,7 @@ void printsGeneralProcedures();
 string returnsSingularVariable(string line, string variable = "latitude");
 void createsFile();
 bool parseAndValidInput(string &input, int &output, int minValue, int maxValue);
-bool parseAndValidNumericalValue(string &input, int &output);
+bool parseAndValidNumericalValue(string &input, double &output);
 void openExistingFile(bool comesFromCreation = false);
 int linesOfFile();
 
@@ -37,19 +38,25 @@ void cliForGISOperations() {
             break;
         }
         switch (PROGRAMSTEP) {
-        case 0:
-            generalProcedureSelector();
-        case 1:
-            generalProcedure();
-        case 2:
-            preViewer();
-        case 3:
-            selectTool();
-
-        default:
-            break;
+            case 0:
+                generalProcedureSelector();
+                [[fallthrough]];
+            case 1:
+                generalProcedure();
+                [[fallthrough]];
+            case 2:
+                preViewer();
+                [[fallthrough]];
+            case 3:
+                selectTool();
+                [[fallthrough]];
+            case 4:
+                tooler();
+                [[fallthrough]];
+            default:
+                break;
         }
-        stepSelector();
+        // stepSelector();
     }
 }
 
@@ -75,44 +82,44 @@ void generalProcedure() {
     case 0:
         createsFile();
         openExistingFile(true);
-        PROGRAMSTEP = 2;
         break;
     case 1:
         openExistingFile();
-        PROGRAMSTEP = 2;
         break;
     default: break;
     }
+    PROGRAMSTEP = 2;
 }
 
-void preViewer (bool withTools) {
-
-    string line, subLine;
+void preViewer(bool withTools) {
+    string line;
     int lineCounter = 0, optionCounter = 0, lines = linesOfFile();
 
     switch (CURRENTGENERALPROCEDURE) {
     case 1:
-        while (true) {
-            getline(CURRENTFILEVIEWER, line);
+        while (getline(CURRENTFILEVIEWER, line)) {
             int lineLength = line.length();
             if (CURRENTFILEVIEWER.eof() || CURRENTFILEVIEWER.fail()) break;
             if (lines - lineCounter > ACTIONS.size()) {
                 printsLine(line, lineLength);
                 cout << endl;
-                lineCounter = lineCounter + 1;
+                lineCounter++;
             } else {
                 printsLine(line, lineLength);
-                if (!withTools) cout << setw(20) << ACTIONS.get(optionCounter) << endl;
+                if (!withTools)
+                    cout << setw(20) << ACTIONS.get(optionCounter) << endl;
                 optionCounter++;
-                lineCounter = lineCounter + 1;
+                lineCounter++;
             }
         }
         break;
     case 0:
         cout << "EMPTY FILE" << endl;
         break;
-    default: break;
+    default:
+        break;
     }
+    PROGRAMSTEP = 3;
 }
 
 void selectTool () {
@@ -120,6 +127,7 @@ void selectTool () {
     int intSelectedTool;
 
     cout << "What you want to do?: ";
+    for (const std::string &option: ACTIONS.values()) cout << option << " ";
     getline(cin, selectedTool);
     while (true) {
         if (parseAndValidInput(selectedTool, intSelectedTool, 0, 2)) {
@@ -129,17 +137,17 @@ void selectTool () {
         cout << "Input a valid option: ";
         getline(cin, selectedTool);
     }
+    PROGRAMSTEP = 4;
 }
 
 void tooler() {
     switch (SELECTEDTOOL) {
     case 0:
-        CURRENTFILEVIEWER.close();
         addNewLine();
-        CURRENTFILE.close();
-        CURRENTFILE.open(CURRENTFILEPATH);
-        CURRENTFILEVIEWER.open(CURRENTFILEPATH);
         preViewer(true);
+        break;
+    case 1:
+
     default: break;
     }
 }
@@ -161,26 +169,38 @@ void printsLine(string line, int lineLength) {
         if (index >= lineLength - 1) break;
         index++;
     }
+
 }
 
 void addNewLine() {
     string place, longitude, latitude, newLine;
-    int intLongitude, intLatitude;
+    double doubleLongitude, doubleLatitude;
     cout << "What's the place's name? ";
     getline(cin, place);
     while (true) {
         cout << "What's the longitude's? ";
         getline(cin, longitude);
-        if(parseAndValidNumericalValue(longitude, intLongitude)) break;
+        if(parseAndValidNumericalValue(longitude, doubleLongitude)) break;
     }
     while (true) {
         cout << "What's the latitude's? ";
         getline(cin, latitude);
-        if(parseAndValidNumericalValue(latitude, intLatitude)) break;
+        if(parseAndValidNumericalValue(latitude, doubleLatitude)) break;
     }
     newLine = place + " " + longitude + " " + latitude + "\n";
-    for (char character : newLine) CURRENTFILE.put(character);
+    if (CURRENTFILE.is_open()) {
+        CURRENTFILE.clear();
+        CURRENTFILE.seekp(0, ios::end);
+        CURRENTFILE << newLine;
+        CURRENTFILE.flush();
+        cout << "New line added successfully." << endl;
+        CURRENTFILEVIEWER.close();
+        CURRENTFILEVIEWER.open(CURRENTFILEPATH);
+    } else {
+        cerr << "Error: The file is not open for writing." << endl;
+    }
 }
+
 
 void stepSelector() {
     string selectedStep;
@@ -202,18 +222,11 @@ void printsGeneralProcedures () {
     }
 }
 
-string returnsSingularVariable(string line, string variable) {
+string  returnsSingularVariable(string line, string variable) {
     char character;
     string subLine;
     int lineLength = line.length();
 
-    if (variable == "place") {
-        for (int i = 0; i < lineLength; i++) {
-            character = line.at(i);
-            if (character == ' ') return line.substr(0, i);
-        }
-        return "";
-    }
     if (variable == "longitude") {
         int latestIndex;
         bool placePassed = false;
@@ -230,11 +243,19 @@ string returnsSingularVariable(string line, string variable) {
         }
         return "";
     }
-    for (int i = lineLength - 1; i > 1; i--) {
+    if (variable == "latitude") {
+        for (int i = lineLength - 1; i > 1; i--) {
+            character = line.at(i);
+            if (character == ' ') return line.substr(i+1, lineLength - i - 1);
+        }
+        return "";
+    }
+    for (int i = 0; i < lineLength; i++) {
         character = line.at(i);
-        if (character == ' ') return line.substr(i+1, lineLength - i - 1);
+        if (character == ' ') return line.substr(0, i);
     }
     return "";
+
 }
 
 bool parseAndValidInput(string &input, int &output, int minValue, int maxValue) {
@@ -243,10 +264,12 @@ bool parseAndValidInput(string &input, int &output, int minValue, int maxValue) 
     return (!stream.fail() && (stream.eof() || isspace(stream.peek())) && (output >= minValue && output <= maxValue));
 }
 
-bool parseAndValidNumericalValue(string &input, int &output) {
+bool parseAndValidNumericalValue(string &input, double &output) {
     istringstream stream(input);
     stream >> skipws >> output;
-    return !stream.fail() && (stream.eof() || isspace(stream.peek()));
+    if (stream.fail()) return false;
+    if (!stream.eof() && !isspace(stream.peek())) return false;
+    return true;
 }
 
 void createsFile() {
@@ -272,13 +295,24 @@ void createsFile() {
 }
 
 void openExistingFile(bool comesFromCreation) {
-    if (!comesFromCreation) CURRENTFILEPATH = promptUserForFilename("Give the .txt file's path:", "Give a valid .txt file's path");
+    if (!comesFromCreation)
+        CURRENTFILEPATH = promptUserForFilename("Give the .txt file's path:", "Give a valid .txt file's path");
     cout << "CURRENT FILE PATH: " << CURRENTFILEPATH << endl;
-    if (CURRENTFILE.is_open()) CURRENTFILE.close();
-    if (CURRENTFILEVIEWER.is_open()) CURRENTFILEVIEWER.close();
-    CURRENTFILE.open(CURRENTFILEPATH);
+
+    if (CURRENTFILE.is_open())
+        CURRENTFILE.close();
+    if (CURRENTFILEVIEWER.is_open())
+        CURRENTFILEVIEWER.close();
+
+    // Open the file for reading and writing without truncating its contents
+    CURRENTFILE.open(CURRENTFILEPATH, std::ios::in | std::ios::out);
     CURRENTFILEVIEWER.open(CURRENTFILEPATH);
+
+    if (!CURRENTFILE.is_open() || !CURRENTFILEVIEWER.is_open()) {
+        cerr << "Failed to open the file for reading and writing." << endl;
+    }
 }
+
 
 int linesOfFile () {
     string line;
