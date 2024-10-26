@@ -13,7 +13,6 @@ int PROGRAMSTEP, CURRENTGENERALPROCEDURE, SELECTEDTOOL;
 HashMap<int, string> ACTIONS = {{0, "(1) Add a new line"}, {1, "(2) Count locations"}, {2, "(3) Reverse coordinates"}};
 HashMap<int, string> generalProcedures = {{0, "(1) Creates File"}, {1, "(2) Edits File"}};
 
-void cliForGISOperations();
 void generalProcedureSelector();
 void generalProcedure();
 void preViewer(bool withTools = false);

@@ -10,7 +10,8 @@
 // #include "exercise1_3.h"
 // #include "exercise1_4.h"
 // #include "exercise1_5.h"
-#include "exercise1_6.h"
+// #include "exercise1_6.h"
+#include "exercise2_1.h"
 using namespace std;
 
 
@@ -21,6 +22,7 @@ int main()
     // testsExtractionOfThreeColumnsFromCSV();
     // countsWordFrequency();
     // showsTextAs2DCoords();
-    cliForGISOperations();
+    // cliForGISOperations();
+    fromIntegerToOctAndHex();
     return 0;
 }

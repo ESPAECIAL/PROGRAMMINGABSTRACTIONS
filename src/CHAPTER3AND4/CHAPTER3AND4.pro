@@ -78,14 +78,16 @@ SOURCES         *=  "" \
     exercise1_3.cpp \
     exercise1_4.cpp \
     exercise1_5.cpp \
-    exercise1_6.cpp
+    exercise1_6.cpp \
+    exercise2_1.cpp
 HEADERS         *=  "" \
     exercise1_1.h \
     exercise1_2.h \
     exercise1_3.h \
     exercise1_4.h \
     exercise1_5.h \
-    exercise1_6.h
+    exercise1_6.h \
+    exercise2_1.h
 
 # Gather any .cpp or .h files within the project folder (student/starter code).
 # Second argument true makes search recursive
