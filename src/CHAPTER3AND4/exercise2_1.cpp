@@ -6,8 +6,7 @@
 using namespace std;
 
 void fromIntegerToOctAndHex() {
-    int number;
-    number = getInteger("Input an integer to be transformed to octal and hexadecimal", "ERROR. Try again!");
+    int number = getInteger("Input the number of a coordinate to be transformed to octal and hexadecimal", "ERROR. Try again!");
     cout << setw(10) << "Integer" << setw(10) << "Octal" << setw(15) << "Hexadecimal" << endl;
     cout << setw(10) << number << setw(10) << oct << number << setw(15) << hex << number;
 }

@@ -11,7 +11,8 @@
 // #include "exercise1_4.h"
 // #include "exercise1_5.h"
 // #include "exercise1_6.h"
-#include "exercise2_1.h"
+// #include "exercise2_1.h"
+#include "exercise2_2.h"
 using namespace std;
 
 
@@ -23,6 +24,7 @@ int main()
     // countsWordFrequency();
     // showsTextAs2DCoords();
     // cliForGISOperations();
-    fromIntegerToOctAndHex();
+    // fromIntegerToOctAndHex();
+    floatingPointToScientific();
     return 0;
 }
