@@ -1,12 +1,9 @@
 #include "exercise2_3.h"
 #include <iostream>
-#include <iomanip>
 #include <string>
 #include <sstream>
 
 using namespace std;
-
-void withFormatting();
 
 void showsHowADescriptionIsFormatted() {
     string line;

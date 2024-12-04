@@ -1,0 +1,9 @@
+Latitude,Longitude,Description
+37.7749,-122.4194,Valid coordinates for San Francisco
+invalid,45.5231,Invalid latitude
+45.5231,invalid,Invalid longitude
+abc,xyz,Both coordinates invalid
+42.3601,-71.0589,Valid coordinates for Boston
+90.1,-122.4194,Invalid latitude (out of range)
+37.7749,-181.5,Invalid longitude (out of range)
+
