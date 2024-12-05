@@ -13,7 +13,8 @@
 // #include "exercise1_6.h"
 // #include "exercise2_1.h"
 // #include "exercise2_2.h"
-#include "exercise2_3.h"
+// #include "exercise2_3.h"
+#include "exercise3_1.h"
 using namespace std;
 
 
@@ -27,6 +28,7 @@ int main()
     // cliForGISOperations();
     // fromIntegerToOctAndHex();
     // floatingPointToScientific();
-    showsHowADescriptionIsFormatted();
+    // showsHowADescriptionIsFormatted();
+    coordinatesChecker();
     return 0;
 }
