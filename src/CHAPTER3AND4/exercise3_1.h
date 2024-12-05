@@ -1,6 +1,6 @@
 #ifndef EXERCISE3_1_H
 #define EXERCISE3_1_H
 
-void
+void coordinatesChecker();
 
-#endif // EXERCISE3_1_H
+#endif
